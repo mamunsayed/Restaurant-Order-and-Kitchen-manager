@@ -1,0 +1,376 @@
+<html>
+<head>
+    <title>Add Menu Item</title>
+    <style>
+        *{
+            box-sizing: border-box;
+        }
+        body{
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f4f5fb;
+        }
+        h1{
+            width: 800px;
+            margin: 20px auto 10px;
+            font-size: 26px;
+            color: #111827;
+        }
+        #box{
+            width: 800px;
+            background-color: #ffffff;
+            padding: 20px 30px;
+            margin: 10px auto 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(15,23,42,0.08);
+        }
+        fieldset{
+            border: none;
+            padding: 10px 0;
+            margin: 0;
+        }
+        legend{
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        input[type="text"]{
+            width: 250px;
+            height: 30px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 14px;
+            background-color: #ffffff;
+        }
+        select{
+            width: 180px;
+            height: 34px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 14px;
+            background-color: #ffffff;
+        }
+        textarea{
+            width: 100%;
+            height: 80px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            padding: 6px 8px;
+            font-size: 14px;
+            resize: vertical;
+            background-color: #ffffff;
+        }
+        input[type="submit"]{
+            padding: 8px 18px;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 6px;
+        }
+        input[type="submit"]:hover{
+            background-color: #1d4ed8;
+        }
+        table{
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+            background-color: white;
+        }
+        th{
+            background-color: #f3f4f6;
+            font-weight: 600;
+            font-size: 14px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        th, td{
+            border: 1px solid #e5e7eb;
+            padding: 8px 10px;
+            text-align: left;
+            font-size: 14px;
+        }
+        tr:nth-child(even) td{
+            background-color: #fafafa;
+        }
+        a{
+            text-decoration: none;
+            margin-right: 6px;
+            font-size: 13px;
+            color: #2563eb;
+        }
+        a:hover{
+            text-decoration: underline;
+        }
+        p{
+            margin: 4px 0 0 0;
+            font-size: 12px;
+            color: #ef4444;
+        }
+        h3{
+            margin-top: 24px;
+            margin-bottom: 8px;
+            font-size: 18px;
+            color: #111827;
+        }
+    </style>
+</head>
+<body>
+    <h1>Menu Items</h1>
+
+    <div id="box">
+        <form action="" method="" enctype="" id="itemForm" onsubmit="return test()">
+            <fieldset>
+                <legend>Add Menu Item</legend>
+                <table>
+                    <tr>
+                        <td>Item Name</td>
+                        <td>
+                            <input type="text" id="itemName" name="itemName" value="" onblur="testItemName()">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td><p id="nameError"></p></td>
+                    </tr>
+                    <tr>
+                        <td>Category</td>
+                        <td>
+                            <select id="category" name="category" onblur="testCategory()">
+                                <option value="">-- Select Category --</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td><p id="categoryError"></p></td>
+                    </tr>
+                    <tr>
+                        <td>Price</td>
+                        <td>
+                            <input type="text" id="price" name="price" value="" onblur="testPrice()">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td><p id="priceError"></p></td>
+                    </tr>
+                    <tr>
+                        <td>Availability</td>
+                        <td>
+                            <select id="availability" name="availability">
+                                <option value="Available">Available</option>
+                                <option value="Unavailable">Unavailable</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Description</td>
+                        <td>
+                            <textarea id="description" name="description"></textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>
+                            <input type="submit" id="saveButton" name="" value="Save Item">
+                        </td>
+                    </tr>
+                </table>
+            </fieldset>
+        </form>
+
+        <h3>Menu List</h3>
+        <table id="itemTable">
+            <tr>
+                <th>Item</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Availability</th>
+                <th>Actions</th>
+            </tr>
+        </table>
+    </div>
+
+    
+    <script>
+        let nameError = document.getElementById('nameError');
+        let categoryError = document.getElementById('categoryError');
+        let priceError = document.getElementById('priceError');
+        let editIndex = -1;
+
+        function getItems(){
+            let data = localStorage.getItem('menuItems');
+            if(data == null || data == ""){
+                return [];
+            }else{
+                return JSON.parse(data);
+            }
+        }
+
+        function saveItems(items){
+            localStorage.setItem('menuItems', JSON.stringify(items));
+        }
+
+        function loadCategories(){
+            let select = document.getElementById('category');
+            let data = localStorage.getItem('categories');
+            let categories;
+            if(data == null || data == ""){
+                categories = ['Starters','Main Course','Drinks'];
+            }else{
+                categories = data.split(',');
+            }
+            for(let i=0; i<categories.length; i++){
+                let option = document.createElement('option');
+                option.value = categories[i];
+                option.text = categories[i];
+                select.appendChild(option);
+            }
+        }
+
+        function showItems(){
+            let table = document.getElementById('itemTable');
+            while(table.rows.length > 1){
+                table.deleteRow(1);
+            }
+            let items = getItems();
+            for(let i=0; i<items.length; i++){
+                let row = table.insertRow(-1);
+
+                let cell1 = row.insertCell(0);
+                cell1.innerHTML = items[i].name;
+
+                let cell2 = row.insertCell(1);
+                cell2.innerHTML = items[i].category;
+
+                let cell3 = row.insertCell(2);
+                cell3.innerHTML = items[i].price;
+
+                let cell4 = row.insertCell(3);
+                cell4.innerHTML = items[i].availability;
+
+                let cell5 = row.insertCell(4);
+                cell5.innerHTML = '<a href="#" onclick="editItem('+i+')">Edit</a><a href="#" onclick="deleteItem('+i+')">Delete</a>';
+            }
+        }
+
+        function testItemName(){
+            let itemName = document.getElementById('itemName').value;
+            itemName = itemName.trim();
+            if(itemName == ""){
+                nameError.innerHTML = "please type item name first!";
+                nameError.style.color = 'red';
+            }else if(itemName.length < 3){
+                nameError.innerHTML = "item name must be at least 3 characters!";
+                nameError.style.color = 'red';
+            }else{
+                nameError.innerHTML = "";
+            }
+        }
+
+        function testCategory(){
+            let category = document.getElementById('category').value;
+            if(category == ""){
+                categoryError.innerHTML = "please select a category!";
+                categoryError.style.color = 'red';
+            }else{
+                categoryError.innerHTML = "";
+            }
+        }
+
+        function testPrice(){
+            let price = document.getElementById('price').value;
+            price = price.trim();
+            if(price == ""){
+                priceError.innerHTML = "please type price first!";
+                priceError.style.color = 'red';
+            }else if(isNaN(price)){
+                priceError.innerHTML = "price must be a number!";
+                priceError.style.color = 'red';
+            }else if(parseFloat(price) <= 0){
+                priceError.innerHTML = "price must be greater than 0!";
+                priceError.style.color = 'red';
+            }else{
+                priceError.innerHTML = "";
+            }
+        }
+
+        function clearForm(){
+            document.getElementById('itemName').value = "";
+            document.getElementById('category').value = "";
+            document.getElementById('price').value = "";
+            document.getElementById('availability').value = "Available";
+            document.getElementById('description').value = "";
+            document.getElementById('saveButton').value = "Save Item";
+            editIndex = -1;
+        }
+
+        function saveItem(){
+            let items = getItems();
+            let itemName = document.getElementById('itemName').value;
+            let category = document.getElementById('category').value;
+            let price = document.getElementById('price').value;
+            let availability = document.getElementById('availability').value;
+            let description = document.getElementById('description').value;
+
+            let item = {
+                name: itemName,
+                category: category,
+                price: price,
+                availability: availability,
+                description: description
+            };
+
+            if(editIndex == -1){
+                items.push(item);
+            }else{
+                items[editIndex] = item;
+            }
+            saveItems(items);
+            showItems();
+            clearForm();
+        }
+
+        function editItem(index){
+            let items = getItems();
+            let item = items[index];
+            document.getElementById('itemName').value = item.name;
+            document.getElementById('category').value = item.category;
+            document.getElementById('price').value = item.price;
+            document.getElementById('availability').value = item.availability;
+            document.getElementById('description').value = item.description;
+            editIndex = index;
+            document.getElementById('saveButton').value = "Update Item";
+        }
+
+        function deleteItem(index){
+            let items = getItems();
+            items.splice(index,1);
+            saveItems(items);
+            showItems();
+            clearForm();
+        }
+
+        function test(){
+            testItemName();
+            testCategory();
+            testPrice();
+            if(nameError.innerHTML !== "" || categoryError.innerHTML !== "" || priceError.innerHTML !== ""){
+                return false;
+            }else{
+                saveItem();
+                return false;
+            }
+        }
+
+        loadCategories();
+        showItems();
+    </script>
+</body>
+</html>

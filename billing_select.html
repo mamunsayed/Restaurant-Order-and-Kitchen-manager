@@ -1,0 +1,217 @@
+<html>
+<head>
+    <title>Select Order for Billing</title>
+    <style>
+        *{
+            box-sizing: border-box;
+        }
+        body{
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f4f5fb;
+        }
+        h1{
+            width: 900px;
+            margin: 20px auto 10px;
+            font-size: 26px;
+            color: #111827;
+        }
+        #box{
+            width: 900px;
+            background-color: #ffffff;
+            padding: 20px 30px;
+            margin: 10px auto 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(15,23,42,0.08);
+        }
+        fieldset{
+            border: none;
+            padding: 10px 0;
+            margin: 0;
+        }
+        legend{
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        table{
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td{
+            padding: 10px 12px;
+            text-align: left;
+            vertical-align: middle;
+        }
+        select{
+            width: 100%;
+            height: 34px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            padding: 4px 8px;
+            background-color: #ffffff;
+            font-size: 14px;
+        }
+        input[type="text"]{
+            width: 100%;
+            height: 30px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            padding: 4px 8px;
+            background-color: #f9fafb;
+            font-size: 14px;
+        }
+        input[type="submit"], input[type="button"]{
+            padding: 8px 18px;
+            background-color: #2563eb;
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 8px;
+            margin-top: 8px;
+        }
+        input[type="submit"]:hover, input[type="button"]:hover{
+            background-color: #1d4ed8;
+        }
+        p{
+            margin: 4px 0 0 0;
+            font-size: 12px;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <h1>Select Order for Billing</h1>
+
+    <div id="box">
+        <form action="" method="" enctype="" id="billingForm" onsubmit="return test()">
+            <fieldset>
+                <legend>Select Order for Billing</legend>
+                <table>
+                    <tr>
+                        <td>Order</td>
+                        <td>
+                            <select id="orderSelect" name="orderSelect" onchange="updateSelection();testOrderSelect()">
+                                <option value="">-- Select Order --</option>
+                            </select>
+                        </td>
+                        <td>Table</td>
+                        <td>
+                            <input type="text" id="tableName" name="tableName" value="" readonly>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Order Status</td>
+                        <td>
+                            <input type="text" id="orderStatus" name="orderStatus" value="" readonly>
+                        </td>
+                        <td>Table Status</td>
+                        <td>
+                            <input type="text" id="tableStatus" name="tableStatus" value="" readonly>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td><p id="oError"></p></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>
+                            <input type="submit" name="" value="Go to Invoice">
+                        </td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </table>
+            </fieldset>
+        </form>
+    </div>
+
+    <script>
+        let oError = document.getElementById('oError');
+        let tableNameInput = document.getElementById('tableName');
+        let orderStatusInput = document.getElementById('orderStatus');
+        let tableStatusInput = document.getElementById('tableStatus');
+
+        function getOrders(){
+            let data = localStorage.getItem('orders');
+            if(data == null || data == ""){
+                return [];
+            }else{
+                return JSON.parse(data);
+            }
+        }
+
+        function loadBillingOrders(){
+            let select = document.getElementById('orderSelect');
+            let orders = getOrders();
+            for(let i=0; i<orders.length; i++){
+                if(orders[i].status == "Sent" || orders[i].status == "Ready for Billing"){
+                    let option = document.createElement('option');
+                    option.value = orders[i].id;
+                    option.text = "Order #" + orders[i].id + " (Table " + orders[i].table + ")";
+                    select.appendChild(option);
+                }
+            }
+        }
+
+        function updateSelection(){
+            let id = document.getElementById('orderSelect').value;
+            if(id == ""){
+                tableNameInput.value = "";
+                orderStatusInput.value = "";
+                tableStatusInput.value = "";
+            }else{
+                let orders = getOrders();
+                for(let i=0; i<orders.length; i++){
+                    if(orders[i].id == parseInt(id)){
+                        tableNameInput.value = orders[i].table;
+                        if(orders[i].status == "Sent"){
+                            orderStatusInput.value = "Ready for Billing";
+                        }else{
+                            orderStatusInput.value = orders[i].status;
+                        }
+                        if(orders[i].paymentStatus == "Paid"){
+                            tableStatusInput.value = "Available";
+                        }else{
+                            tableStatusInput.value = "Occupied";
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        function testOrderSelect(){
+            let id = document.getElementById('orderSelect').value;
+            if(id == ""){
+                oError.innerHTML = "please select an order!";
+                oError.style.color = 'red';
+            }else{
+                oError.innerHTML = "";
+            }
+        }
+
+        function test(){
+            testOrderSelect();
+            if(oError.innerHTML !== ""){
+                return false;
+            }else{
+                let id = document.getElementById('orderSelect').value;
+                localStorage.setItem('billingOrderId', id);
+                window.location.href = "invoice.html";
+                return false;
+            }
+        }
+
+        loadBillingOrders();
+    </script>
+</body>
+</html>
