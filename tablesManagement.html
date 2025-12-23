@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tables Management - Restaurant Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sidebar-bg: #043362;
+            --primary: #1c7ced;
+            --light-bg: #f4f6fb;
+            --border-radius: 10px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: var(--light-bg);
+            color: #111827;
+        }
+
+        .app-layout { display: flex; min-height: 100vh; }
+
+        
+        .sidebar {
+            width: 250px;
+            background: var(--sidebar-bg);
+            color: #fff;
+            padding: 22px 18px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .sidebar-header { margin-bottom: 24px; }
+
+        .sidebar-logo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .logo-circle {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .logo-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        .sidebar-menu {
+            margin-top: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .sidebar-btn {
+            width: 100%;
+            padding: 9px 10px;
+            border-radius: 6px;
+            border: none;
+            background: rgba(255,255,255,0.06);
+            color: #e5e7eb;
+            text-align: left;
+            font-size: 0.88rem;
+            cursor: pointer;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+
+        .sidebar-btn:hover { background: rgba(255,255,255,0.18); color: #fff; }
+        .sidebar-btn.active { background: #fff; color: var(--sidebar-bg); font-weight: 600; }
+
+        .logout-btn {
+            margin-top: 24px;
+            padding: 9px 10px;
+            border-radius: 6px;
+            border: none;
+            background: #ef4444;
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        .logout-btn:hover { background: #dc2626; }
+
+        
+        .main {
+            flex: 1;
+            padding: 20px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .top-nav {
+            background: #fff;
+            border-radius: var(--border-radius);
+            padding: 10px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 6px 18px rgba(15,23,42,0.08);
+        }
+
+        .top-nav-title { font-weight: 600; font-size: 1.1rem; }
+
+        .top-nav-right { display: flex; align-items: center; gap: 10px; }
+
+        .user-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .more-btn {
+            border: none;
+            background: #e5e7eb;
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-bottom: 3px;
+        }
+        .more-btn:hover { background: #d1d5db; }
+
+        .more-menu {
+            position: absolute;
+            top: 60px;
+            right: 30px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(15,23,42,0.16);
+            padding: 8px 0;
+            width: 210px;
+            display: none;
+            z-index: 10;
+        }
+        .more-menu.open { display: block; }
+        .more-menu a,
+        .more-menu button {
+            width: 100%;
+            padding: 8px 14px;
+            border: none;
+            background: transparent;
+            text-align: left;
+            font-size: 0.86rem;
+            color: #111827;
+            cursor: pointer;
+        }
+        .more-menu a:hover,
+        .more-menu button:hover { background: #f3f4f6; }
+        .more-menu .logout-item { color: #dc2626; }
+
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: var(--border-radius);
+            padding: 16px 18px;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 10px 14px;
+            margin-top: 6px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+
+        input, select {
+            padding: 8px 10px;
+            border-radius: 6px;
+            border: 1px solid #d1d5db;
+            font-size: 0.9rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(28,124,237,0.2);
+        }
+
+        .btn-primary {
+            margin-top: 10px;
+            padding: 9px 14px;
+            border-radius: 6px;
+            border: none;
+            background: var(--primary);
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            align-self: flex-start;
+            transition: background 0.2s ease, transform 0.1s ease;
+        }
+        .btn-primary:hover { background: #1665c3; }
+        .btn-primary:active { transform: translateY(1px); }
+
+        .error-text {
+            margin-top: 3px;
+            font-size: 0.8rem;
+            color: #dc2626;
+            min-height: 16px;
+        }
+
+        .table-wrapper {
+            margin-top: 8px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        th, td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+        }
+
+        th { background: #f3f4f6; font-weight: 600; }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+        }
+
+        .badge-status {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .action-btn {
+            border: none;
+            background: transparent;
+            font-size: 0.8rem;
+            color: #2563eb;
+            cursor: pointer;
+            margin-right: 6px;
+        }
+
+        .action-btn.delete {
+            color: #dc2626;
+        }
+
+        @media (max-width: 900px) {
+            .app-layout { flex-direction: column; }
+
+            .sidebar {
+                width: 100%;
+                flex-direction: row;
+                padding-bottom: 10px;
+                overflow-x: auto;
+            }
+
+            .sidebar-menu {
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+
+            .logout-btn {
+                width: 120px;
+                margin-top: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="app-layout">
+    
+    <aside class="sidebar">
+        <div>
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <div class="logo-circle">R</div>
+                    <div class="logo-text">
+                        Smart Restaurant<br>
+                        Management System
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-menu">
+                <button class="sidebar-btn" onclick="window.location.href='dashboard.html'">Dashboard</button>
+                <button class="sidebar-btn" onclick="window.location.href='staff_management.html'">Staff</button>
+                <button class="sidebar-btn active">Tables</button>
+                <button class="sidebar-btn" onclick="window.location.href='menu_management.html'">Menu</button>
+                <button class="sidebar-btn" onclick="window.location.href='orders.html'">Orders / KDS</button>
+                <button class="sidebar-btn" onclick="window.location.href='billing.html'">Billing &amp; Payments</button>
+                <button class="sidebar-btn" onclick="window.location.href='reports.html'">Reports</button>
+            </div>
+        </div>
+
+        <button class="logout-btn logout-link">Logout</button>
+    </aside>
+
+    
+    <main class="main">
+        <header class="top-nav">
+            <div class="top-nav-title">Tables Management</div>
+            <div class="top-nav-right">
+                <span class="user-name" id="currentUserName">Admin</span>
+                <button class="more-btn" id="moreBtn">⋮</button>
+                <div class="more-menu" id="moreMenu">
+                    <button type="button" onclick="window.location.href='dashboard.html'">Go to Dashboard</button>
+                    <button type="button" onclick="window.location.href='orders.html'">Open Orders View</button>
+                    <button type="button" class="logout-item logout-link">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <section class="content">
+            
+            <div class="card">
+                <h2 class="card-title" id="formTitle">Add Restaurant Table</h2>
+                <form id="tableForm" novalidate>
+                    <input type="hidden" id="editingIndex" value="-1">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="tableName">Table Number / Name</label>
+                            <input id="tableName" type="text" placeholder="e.g. T1, Family 4">
+                            <div id="tableNameError" class="error-text"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tableArea">Area</label>
+                            <select id="tableArea">
+                                <option value="">-- Select Area --</option>
+                                <option value="Main Hall">Main Hall</option>
+                                <option value="Patio">Patio</option>
+                                <option value="VIP">VIP</option>
+                                <option value="Rooftop">Rooftop</option>
+                            </select>
+                            <div id="tableAreaError" class="error-text"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tableCapacity">Capacity</label>
+                            <input id="tableCapacity" type="number" min="1" placeholder="Number of seats">
+                            <div id="tableCapacityError" class="error-text"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="assignedServer">Assign Server (optional)</label>
+                            <select id="assignedServer">
+                                <option value="">-- Not Assigned --</option>
+                                <option value="Alice (Server)">Alice (Server)</option>
+                                <option value="Bob (Server)">Bob (Server)</option>
+                                <option value="Carol (Server)">Carol (Server)</option>
+                            </select>
+                            <div class="error-text"></div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary">Save Table</button>
+                </form>
+            </div>
+
+            
+            <div class="card">
+                <h2 class="card-title">Tables List</h2>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Table</th>
+                            <th>Area</th>
+                            <th>Capacity</th>
+                            <th>Status</th>
+                            <th>Assigned Server</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody id="tablesBody">
+                        
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<script>
+    
+    function initLayout() {
+        const storedName = localStorage.getItem('currentUserName');
+        const nameSpan = document.getElementById('currentUserName');
+        if (storedName && nameSpan) nameSpan.textContent = storedName;
+
+        const moreBtn = document.getElementById('moreBtn');
+        const moreMenu = document.getElementById('moreMenu');
+
+        if (moreBtn && moreMenu) {
+            moreBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                moreMenu.classList.toggle('open');
+            });
+            document.addEventListener('click', function (e) {
+                if (!moreMenu.contains(e.target) && e.target !== moreBtn) {
+                    moreMenu.classList.remove('open');
+                }
+            });
+        }
+
+        document.querySelectorAll('.logout-link').forEach(btn => {
+            btn.addEventListener('click', function () {
+                localStorage.removeItem('currentUserName');
+                window.location.href = 'login.html';
+            });
+        });
+    }
+
+    
+    const statusOptions = ['Available', 'Reserved', 'Occupied', 'Cleaning'];
+    const sampleServers = ['', 'Alice (Server)', 'Bob (Server)', 'Carol (Server)'];
+
+    let tables = [
+        { name: 'T1', area: 'Main Hall', capacity: 4, status: 'Available', server: 'Alice (Server)' },
+        { name: 'T2', area: 'Main Hall', capacity: 2, status: 'Occupied', server: 'Bob (Server)' },
+        { name: 'VIP1', area: 'VIP', capacity: 6, status: 'Reserved', server: '' }
+    ];
+
+    function renderTables() {
+        const tbody = document.getElementById('tablesBody');
+        tbody.innerHTML = '';
+
+        tables.forEach((t, index) => {
+            const tr = document.createElement('tr');
+
+            const statusSelect = document.createElement('select');
+            statusOptions.forEach(st => {
+                const opt = document.createElement('option');
+                opt.value = st;
+                opt.textContent = st;
+                if (st === t.status) opt.selected = true;
+                statusSelect.appendChild(opt);
+            });
+            statusSelect.addEventListener('change', () => {
+                t.status = statusSelect.value;  
+            });
+
+            const serverSelect = document.createElement('select');
+            sampleServers.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s;
+                opt.textContent = s || '-- Not Assigned --';
+                if (s === t.server) opt.selected = true;
+                serverSelect.appendChild(opt);
+            });
+            serverSelect.addEventListener('change', () => {
+                t.server = serverSelect.value;   
+            });
+
+            const editBtn = document.createElement('button');
+            editBtn.textContent = 'Edit';
+            editBtn.className = 'action-btn';
+            editBtn.addEventListener('click', () => loadTableIntoForm(index));
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.textContent = 'Delete';
+            deleteBtn.className = 'action-btn delete';
+            deleteBtn.addEventListener('click', () => deleteTable(index)); 
+
+            tr.innerHTML = `
+                <td>${t.name}</td>
+                <td>${t.area}</td>
+                <td>${t.capacity}</td>
+                <td></td>
+                <td></td>
+                <td></td>
+            `;
+
+            tr.children[3].appendChild(statusSelect);
+            tr.children[4].appendChild(serverSelect);
+
+            const actionsCell = tr.children[5];
+            actionsCell.appendChild(editBtn);
+            actionsCell.appendChild(deleteBtn);
+
+            tbody.appendChild(tr);
+        });
+    }
+
+    function clearFormErrors() {
+        ['tableNameError', 'tableAreaError', 'tableCapacityError'].forEach(id => {
+            document.getElementById(id).textContent = '';
+        });
+    }
+
+    function loadTableIntoForm(index) {
+        const t = tables[index];
+        document.getElementById('tableName').value = t.name;
+        document.getElementById('tableArea').value = t.area;
+        document.getElementById('tableCapacity').value = t.capacity;
+        document.getElementById('assignedServer').value = t.server;
+        document.getElementById('editingIndex').value = index;
+        document.getElementById('formTitle').textContent = 'Edit Table';
+    }
+
+    function deleteTable(index) {
+        const t = tables[index];
+        
+        if (t.status === 'Occupied') {
+            alert('Cannot delete this table because it is linked to an active order (status: Occupied).');
+            return;
+        }
+        if (confirm(`Delete table "${t.name}"?`)) {
+            tables.splice(index, 1);
+            renderTables();
+        }
+    }
+
+    function initTableForm() {
+        const form = document.getElementById('tableForm');
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            clearFormErrors();
+
+            const name = document.getElementById('tableName').value.trim();
+            const area = document.getElementById('tableArea').value;
+            const capacityStr = document.getElementById('tableCapacity').value.trim();
+            const server = document.getElementById('assignedServer').value;
+            const editingIndex = parseInt(document.getElementById('editingIndex').value, 10);
+
+            let hasError = false;
+
+            if (!name) {
+                document.getElementById('tableNameError').textContent = 'Table name/number is required.';
+                hasError = true;
+            }
+            if (!area) {
+                document.getElementById('tableAreaError').textContent = 'Area is required.';
+                hasError = true;
+            }
+            if (!capacityStr) {
+                document.getElementById('tableCapacityError').textContent = 'Capacity is required.';
+                hasError = true;
+            } else {
+                const capacity = Number(capacityStr);
+                if (!Number.isInteger(capacity) || capacity <= 0) {
+                    document.getElementById('tableCapacityError').textContent = 'Capacity must be a positive integer.';
+                    hasError = true;
+                }
+            }
+
+            if (hasError) return;
+
+            const newTable = {
+                name,
+                area,
+                capacity: Number(capacityStr),
+                status: 'Available',
+                server
+            };
+
+            if (editingIndex >= 0) {
+                
+                newTable.status = tables[editingIndex].status;
+                tables[editingIndex] = newTable;
+                alert('Table updated successfully.');
+            } else {
+                
+                tables.push(newTable);
+                alert('Table added successfully.');
+            }
+
+            form.reset();
+            document.getElementById('editingIndex').value = -1;
+            document.getElementById('formTitle').textContent = 'Add Restaurant Table';
+            renderTables();
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        initLayout();
+        initTableForm();
+        renderTables();
+    });
+</script>
+</body>
+</html>

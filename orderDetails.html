@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Order Details</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Poppins;background:#f4f6fb}
+.app-layout{display:flex;min-height:100vh}
+
+.sidebar{
+width:250px;background:#043362;color:#fff;
+padding:22px 18px;display:flex;flex-direction:column;justify-content:space-between
+}
+.sidebar-btn{background:rgba(255,255,255,.08);border:none;color:#fff;padding:8px;border-radius:6px;text-align:left}
+.sidebar-btn.active{background:#fff;color:#043362;font-weight:600}
+.logout-btn{background:#ef4444;border:none;color:#fff;padding:8px;border-radius:6px}
+
+.main{flex:1;padding:20px;display:flex;flex-direction:column;gap:16px}
+
+.top-nav{
+background:#fff;padding:10px 16px;border-radius:10px;
+display:flex;justify-content:space-between;
+box-shadow:0 6px 18px rgba(0,0,0,.08)
+}
+
+.card{background:#fff;padding:20px;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.08)}
+
+table{width:100%;border-collapse:collapse;margin-top:10px}
+th,td{padding:8px;border-bottom:1px solid #e5e7eb}
+button{padding:6px 12px;border:none;border-radius:6px;font-weight:600;cursor:pointer}
+.primary{background:#2563eb;color:#fff}
+.danger{background:#ef4444;color:#fff}
+.secondary{background:#16a34a;color:#fff}
+.actions{margin-top:12px;display:flex;gap:10px}
+</style>
+</head>
+
+<body>
+<div class="app-layout">
+
+<aside class="sidebar">
+<div>
+<div class="sidebar-btn">Dashboard</div>
+<div class="sidebar-btn active">Orders</div>
+</div>
+<button class="logout-btn">Logout</button>
+</aside>
+
+<main class="main">
+
+<div class="top-nav">
+<strong>Order Details</strong>
+<span>Server</span>
+</div>
+
+<div class="card">
+<div>
+<strong>Table:</strong> <span id="tName"></span> |
+<strong>Order ID:</strong> <span id="oId"></span>
+</div>
+
+<br>
+
+<select id="item"></select>
+<input id="qty" type="number" value="1" min="1">
+<button class="primary" onclick="addItem()">Add</button>
+
+<table>
+<thead>
+<tr><th>Item</th><th>Qty</th><th>Price</th><th></th></tr>
+</thead>
+<tbody id="rows"></tbody>
+</table>
+
+<h3>Total: $<span id="total">0</span></h3>
+
+<div class="actions">
+<button class="danger" onclick="cancelOrder()">Cancel Order</button>
+<button class="secondary" onclick="sendToKitchen()">Send to Kitchen</button>
+</div>
+</div>
+
+</main>
+</div>
+
+<script>
+let menu=[
+{id:1,name:'Pizza',price:10},
+{id:2,name:'Burger',price:6}
+];
+
+let orders=JSON.parse(localStorage.getItem('orders')||'[]');
+let id=Number(localStorage.getItem('currentOrderId'));
+let order=orders.find(o=>o.id===id);
+
+tName.innerHTML=order.tableName;
+oId.innerHTML=order.id;
+
+menu.forEach(m=>{
+let o=document.createElement('option');
+o.value=m.id;o.text=m.name;
+item.appendChild(o);
+});
+
+function save(){localStorage.setItem('orders',JSON.stringify(orders))}
+
+function addItem(){
+let m=menu.find(x=>x.id==item.value);
+order.items.push({name:m.name,qty:+qty.value,price:m.price,status:'Pending'});
+save();render();
+}
+
+function render(){
+rows.innerHTML='';let sum=0;
+order.items.forEach((i,idx)=>{
+sum+=i.qty*i.price;
+rows.innerHTML+=`<tr>
+<td>${i.name}</td>
+<td>${i.qty}</td>
+<td>$${i.qty*i.price}</td>
+<td><button onclick="removeItem(${idx})">X</button></td>
+</tr>`;
+});
+total.innerHTML=sum;
+}
+
+function removeItem(i){
+order.items.splice(i,1);
+save();render();
+}
+
+function cancelOrder(){
+orders=orders.filter(o=>o.id!==order.id);
+save();
+window.location.href='start_order.html';
+}
+
+function sendToKitchen(){
+if(order.items.length===0){alert('No items to send');return;}
+order.items.forEach(i=>i.status='Sent');
+localStorage.setItem('kitchenOrder',JSON.stringify(order));
+window.location.href='kitchen_manage.html';
+}
+
+render();
+</script>
+</body>
+</html>

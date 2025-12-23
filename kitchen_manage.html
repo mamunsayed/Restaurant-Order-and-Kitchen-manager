@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Kitchen Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Poppins;background:#f4f6fb}
+.app-layout{display:flex;min-height:100vh}
+
+.sidebar{
+width:250px;background:#043362;color:#fff;
+padding:22px 18px;display:flex;flex-direction:column;justify-content:space-between
+}
+.sidebar-btn{background:rgba(255,255,255,.08);border:none;color:#fff;padding:8px;border-radius:6px;text-align:left}
+.sidebar-btn.active{background:#fff;color:#043362;font-weight:600}
+
+.main{flex:1;padding:20px}
+
+.top-nav{
+background:#fff;padding:10px 16px;border-radius:10px;
+display:flex;justify-content:space-between;
+box-shadow:0 6px 18px rgba(0,0,0,.08)
+}
+
+.card{
+background:#fff;padding:20px;margin-top:16px;
+border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.08)
+}
+
+table{width:100%;border-collapse:collapse}
+th,td{padding:8px;border-bottom:1px solid #e5e7eb}
+
+button{
+padding:6px 12px;border:none;border-radius:6px;
+background:#16a34a;color:#fff;font-weight:600;cursor:pointer
+}
+</style>
+</head>
+
+<body>
+<div class="app-layout">
+
+<aside class="sidebar">
+<div>
+<div class="sidebar-btn active">Kitchen</div>
+<div class="sidebar-btn" onclick="window.location.href='order_details.html'">Orders</div>
+</div>
+</aside>
+
+<main class="main">
+
+<div class="top-nav">
+<strong>Kitchen Display System</strong>
+<span>Kitchen</span>
+</div>
+
+<div class="card">
+<div>
+<strong>Table:</strong> <span id="table"></span> |
+<strong>Order ID:</strong> <span id="orderId"></span>
+</div>
+
+<table>
+<thead>
+<tr><th>Item</th><th>Qty</th><th>Status</th><th></th></tr>
+</thead>
+<tbody id="kitchenRows"></tbody>
+</table>
+</div>
+
+</main>
+</div>
+
+<script>
+let order=JSON.parse(localStorage.getItem('kitchenOrder'));
+
+table.innerHTML=order.tableName;
+orderId.innerHTML=order.id;
+
+function render(){
+kitchenRows.innerHTML='';
+order.items.forEach((i,idx)=>{
+kitchenRows.innerHTML+=`
+<tr>
+<td>${i.name}</td>
+<td>${i.qty}</td>
+<td>${i.status}</td>
+<td>
+${i.status==='Sent'
+? `<button onclick="markDone(${idx})">Mark Done</button>`
+: 'Completed'}
+</td>
+</tr>`;
+});
+}
+
+function markDone(i){
+order.items[i].status='Completed';
+localStorage.setItem('kitchenOrder',JSON.stringify(order));
+render();
+}
+
+render();
+</script>
+</body>
+</html>

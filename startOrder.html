@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Start Order</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Poppins;background:#f4f6fb;color:#111827}
+.app-layout{display:flex;min-height:100vh}
+
+.sidebar{
+width:250px;background:#043362;color:#fff;
+padding:22px 18px;display:flex;flex-direction:column;justify-content:space-between
+}
+.logo-circle{
+width:48px;height:48px;border-radius:50%;border:2px solid #fff;
+display:flex;align-items:center;justify-content:center;font-weight:600;margin:0 auto 10px
+}
+.logo-text{text-align:center;font-weight:600}
+.sidebar-menu{margin-top:20px;display:flex;flex-direction:column;gap:8px}
+.sidebar-btn{
+background:rgba(255,255,255,.08);border:none;color:#fff;
+padding:8px;border-radius:6px;text-align:left;cursor:pointer
+}
+.sidebar-btn.active{background:#fff;color:#043362;font-weight:600}
+.logout-btn{
+background:#ef4444;border:none;color:#fff;padding:8px;border-radius:6px;font-weight:600
+}
+
+.main{flex:1;padding:20px;display:flex;flex-direction:column;gap:16px}
+
+.top-nav{
+background:#fff;border-radius:10px;padding:10px 16px;
+display:flex;justify-content:space-between;align-items:center;
+box-shadow:0 6px 18px rgba(0,0,0,.08)
+}
+
+.card{
+background:#fff;border-radius:10px;padding:20px;
+box-shadow:0 8px 24px rgba(0,0,0,.08)
+}
+
+table{width:100%;border-collapse:collapse}
+td{padding:8px}
+select,input{
+width:280px;padding:8px;border-radius:6px;border:1px solid #d1d5db
+}
+input[readonly]{background:#f9fafb}
+button.primary{
+margin-top:10px;background:#2563eb;color:#fff;border:none;
+padding:8px 16px;border-radius:6px;font-weight:600;cursor:pointer
+}
+.error{font-size:12px;color:#ef4444}
+</style>
+</head>
+
+<body>
+<div class="app-layout">
+
+<aside class="sidebar">
+<div>
+<div class="logo-circle">R</div>
+<div class="logo-text">Smart Restaurant<br>Management</div>
+
+<div class="sidebar-menu">
+<button class="sidebar-btn">Dashboard</button>
+<button class="sidebar-btn">Staff</button>
+<button class="sidebar-btn">Tables</button>
+<button class="sidebar-btn">Menu</button>
+<button class="sidebar-btn active">Orders</button>
+<button class="sidebar-btn">Billing</button>
+<button class="sidebar-btn">Reports</button>
+</div>
+</div>
+<button class="logout-btn">Logout</button>
+</aside>
+
+<main class="main">
+
+<div class="top-nav">
+<div><strong>Orders</strong></div>
+<div>Server</div>
+</div>
+
+<div class="card">
+<h3>Start Order (Assign Table)</h3>
+
+<form onsubmit="return startOrder()">
+<table>
+<tr>
+<td>Select Table</td>
+<td>
+<select id="tableSelect" onchange="updateStatus()">
+<option value="">-- Select Table --</option>
+</select>
+</td>
+<td>Status</td>
+<td><input id="tableStatus" readonly value="Select a table"></td>
+</tr>
+<tr>
+<td></td>
+<td class="error" id="tError"></td>
+</tr>
+</table>
+<button class="primary">Start Order</button>
+</form>
+</div>
+
+</main>
+</div>
+
+<script>
+let tables=[
+{id:1,name:'T1',status:'Available'},
+{id:2,name:'T2',status:'Reserved'},
+{id:3,name:'T3',status:'Occupied'}
+];
+
+function getOrders(){return JSON.parse(localStorage.getItem('orders')||'[]')}
+function saveOrders(o){localStorage.setItem('orders',JSON.stringify(o))}
+
+tables.forEach(t=>{
+let o=document.createElement('option');
+o.value=t.id;o.text=t.name;
+tableSelect.appendChild(o);
+});
+
+function updateStatus(){
+let t=tables.find(x=>x.id==tableSelect.value);
+tableStatus.value=t?t.status:'Select a table';
+}
+
+function startOrder(){
+tError.innerHTML='';
+let id=Number(tableSelect.value);
+if(!id){tError.innerHTML='select a table';return false;}
+let t=tables.find(x=>x.id===id);
+if(!['Available','Reserved'].includes(t.status)){
+tError.innerHTML='table not available';return false;
+}
+let orders=getOrders();
+let newId=orders.length?orders[orders.length-1].id+1:101;
+orders.push({id:newId,tableId:t.id,tableName:t.name,status:'Open',items:[]});
+saveOrders(orders);
+localStorage.setItem('currentOrderId',newId);
+window.location.href='orderDetails.html';
+return false;
+}
+</script>
+</body>
+</html>
